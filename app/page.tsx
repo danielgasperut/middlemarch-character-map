@@ -29,6 +29,42 @@ type Tie = {
   label: string;
 };
 
+type RelationshipConnection = {
+  tie: Tie;
+  person: Person;
+  x: number;
+  y: number;
+  labelX: number;
+  labelY: number;
+};
+
+const books = [
+  { roman: 'I', start: 1, end: 12 },
+  { roman: 'II', start: 13, end: 22 },
+  { roman: 'III', start: 23, end: 29 },
+  { roman: 'IV', start: 30, end: 42 },
+  { roman: 'V', start: 43, end: 53 },
+  { roman: 'VI', start: 54, end: 62 },
+  { roman: 'VII', start: 63, end: 71 },
+  { roman: 'VIII', start: 72, end: 86 },
+] as const;
+
+function bookPosition(globalChapter: number) {
+  const book =
+    books.find(
+      (candidate) =>
+        globalChapter >= candidate.start && globalChapter <= candidate.end,
+    ) ?? books[books.length - 1];
+  const chapter = globalChapter - book.start + 1;
+
+  return {
+    book,
+    chapter,
+    label: 'Book ' + book.roman + ' · Chapter ' + chapter,
+    detail: 'Book ' + book.roman + ' · Chapter ' + chapter + ' of ' + (book.end - book.start + 1),
+  };
+}
+
 const circles = [
   { id: 'brookes', title: 'The Brookes & their circle', eyebrow: 'Tipton Grange · Lowick', tone: 'violet' },
   { id: 'vincys', title: 'The Vincys & Stone Court', eyebrow: 'Middlemarch households', tone: 'rose' },
@@ -98,6 +134,32 @@ export default function Home() {
 
   const named = (id: string) => people.find((person) => person.id === id)?.name ?? '';
   const selectedTies = visibleTies.filter((tie) => tie.from === selected?.id || tie.to === selected?.id);
+  const currentPosition = bookPosition(chapter);
+  const selectedPosition = selected ? bookPosition(selected.introduced) : null;
+  const relationshipConnections = selected
+    ? selectedTies.reduce<RelationshipConnection[]>((connections, tie, index) => {
+        const otherId = tie.from === selected.id ? tie.to : tie.from;
+        const person = people.find((candidate) => candidate.id === otherId);
+        if (!person) return connections;
+
+        const count = selectedTies.length;
+        const angle =
+          (count === 1 ? 0 : -Math.PI / 2) +
+          (index * Math.PI * 2) / count;
+        const cosine = Math.cos(angle);
+        const sine = Math.sin(angle);
+
+        connections.push({
+          tie,
+          person,
+          x: 160 + cosine * 102,
+          y: 120 + sine * 73,
+          labelX: 160 + cosine * 48,
+          labelY: 120 + sine * 38 + (sine < 0 ? -9 : 14),
+        });
+        return connections;
+      }, [])
+    : [];
 
   return (
     <main className="map-page">
@@ -108,8 +170,9 @@ export default function Home() {
           <div className="eyebrow"><BookOpen size={16} aria-hidden="true" /> A reader’s companion</div>
           <div className="header-copy">
             <div><h1>Middlemarch</h1><p>Character map, one chapter at a time.</p></div>
-            <div className="chapter-medallion" aria-label={'Showing Chapter ' + chapter}>
-              <span>Showing</span><strong>Ch. {chapter}</strong>
+            <div className="chapter-medallion" aria-label={'Showing ' + currentPosition.label}>
+              <span>Book {currentPosition.book.roman}</span>
+              <strong>Chapter {currentPosition.chapter}</strong>
             </div>
           </div>
         </header>
@@ -131,7 +194,18 @@ export default function Home() {
               }
               className="chapter-slider"
             />
-            <div className="slider-scale" aria-hidden="true"><span>1</span><span>22</span><span>44</span><span>66</span><span>86</span></div>
+            <div className="slider-reading-position">
+              <strong>{currentPosition.label}</strong>
+              <span>Chapter {currentPosition.chapter} of {currentPosition.book.end - currentPosition.book.start + 1}</span>
+            </div>
+            <div className="book-index" aria-hidden="true">
+              {books.map((book) => (
+                <span className={book.roman === currentPosition.book.roman ? 'is-current' : ''} key={book.roman}>
+                  <b>Book {book.roman}</b>
+                  <small>{book.start}–{book.end}</small>
+                </span>
+              ))}
+            </div>
           </div>
           <div className="chapter-actions">
             <button type="button" onClick={() => setChapter((value) => Math.max(1, value - 1))} disabled={chapter === 1}><ArrowLeft size={17} aria-hidden="true" /> Earlier</button>
@@ -185,15 +259,53 @@ export default function Home() {
 
           {selected && (
             <aside className="detail-panel" aria-live="polite">
-              <div className="detail-topline"><span>Selected person</span><span>Ch. {selected.introduced}+</span></div>
+              <div className="detail-topline"><span>Selected person</span><span>Book {selectedPosition?.book.roman} · Ch. {selectedPosition?.chapter}</span></div>
               <div className="detail-identity">
                 <div className="detail-initials">{selected.initials}</div>
                 <div><h2>{selected.name}</h2><p>{selected.role}</p></div>
               </div>
               <p className="detail-copy">{selected.detail}</p>
               <div className="detail-divider" />
+              <section className="relationship-section" aria-label={'Relationship map for ' + selected.name}>
+                <p className="relationship-title"><Link2 size={16} aria-hidden="true" /> Relationship map</p>
+                {relationshipConnections.length ? (
+                  <div className="relationship-network">
+                    <svg viewBox="0 0 320 240" aria-hidden="true">
+                      {relationshipConnections.map((connection) => (
+                        <g key={connection.tie.from + '-' + connection.tie.to}>
+                          <line x1="160" y1="120" x2={connection.x} y2={connection.y} />
+                          <circle cx={connection.labelX} cy={connection.labelY - 3} r="2.5" />
+                          <text x={connection.labelX} y={connection.labelY}>{connection.tie.label}</text>
+                        </g>
+                      ))}
+                    </svg>
+                    <div className="relationship-center">
+                      <span>{selected.initials}</span>
+                      <strong>{selected.name}</strong>
+                    </div>
+                    {relationshipConnections.map((connection) => (
+                      <button
+                        aria-label={selected.name + ' — ' + connection.tie.label + ' — ' + connection.person.name}
+                        className="relationship-node"
+                        key={connection.tie.from + '-' + connection.tie.to}
+                        onClick={() => setSelectedId(connection.person.id)}
+                        style={{
+                          left: (connection.x / 320) * 100 + '%',
+                          top: (connection.y / 240) * 100 + '%',
+                        }}
+                        type="button"
+                      >
+                        <span>{connection.person.initials}</span>
+                        <strong>{connection.person.name}</strong>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="relationship-empty">No named tie is visible at this reading position yet.</p>
+                )}
+              </section>
               <div className="detail-connections">
-                <p><Link2 size={16} aria-hidden="true" /> Connections shown so far</p>
+                <p>Connections shown so far</p>
                 {selectedTies.length ? (
                   <ul>
                     {selectedTies.map((tie) => {
