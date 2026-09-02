@@ -125,8 +125,10 @@ export default function Home() {
               min={1}
               max={86}
               step={1}
-              value={chapter}
-              onValueChange={(value) => setChapter(value)}
+              value={[chapter]}
+              onValueChange={(value) =>
+                setChapter(Array.isArray(value) ? value[0] : value)
+              }
               className="chapter-slider"
             />
             <div className="slider-scale" aria-hidden="true"><span>1</span><span>22</span><span>44</span><span>66</span><span>86</span></div>
