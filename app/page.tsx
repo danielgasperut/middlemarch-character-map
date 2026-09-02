@@ -120,7 +120,15 @@ export default function Home() {
             <p>Move to the chapter you’ve finished. Later people and connections stay out of sight.</p>
           </div>
           <div className="slider-wrap">
-            <Slider aria-label="Chapter completed" min={1} max={86} step={1} value={[chapter]} onValueChange={(value) => setChapter(value[0])} className="chapter-slider" />
+            <Slider
+              aria-label="Chapter completed"
+              min={1}
+              max={86}
+              step={1}
+              value={chapter}
+              onValueChange={(value) => setChapter(value)}
+              className="chapter-slider"
+            />
             <div className="slider-scale" aria-hidden="true"><span>1</span><span>22</span><span>44</span><span>66</span><span>86</span></div>
           </div>
           <div className="chapter-actions">
