@@ -121,7 +121,7 @@ const people: Person[] = [
   { id: 'bowyer', name: 'Mr Bowyer', circle: 'town', introduced: 16, initials: 'MB', role: 'First name not given', detail: 'A musician known to Rosamond and Lydgate through Middlemarch society.' },
   { id: 'trawley', name: 'Trawley', circle: 'town', introduced: 17, initials: 'Tr', role: 'First name not given', detail: 'Lydgate’s former Paris roommate and a correspondent of Farebrother.' },
 
-  { id: 'naumann', name: 'Adolf Naumann', circle: 'rome', introduced: 22, initials: 'AN', role: 'German painter in Rome', detail: 'Will Ladislaw’s artist friend, who meets Dorothea and Casaubon in Rome.' },
+  { id: 'naumann', name: 'Adolf Naumann', circle: 'rome', introduced: 19, initials: 'AN', role: 'German painter in Rome', detail: 'Will Ladislaw’s artist friend, who meets Dorothea and Casaubon in Rome.' },
 
   { id: 'caleb', name: 'Caleb Garth', circle: 'garths', introduced: 23, initials: 'CG', role: 'Land agent and surveyor', detail: 'Susan Garth’s husband and Mary’s father; a capable, energetic man devoted to useful work.' },
   { id: 'susan', name: 'Susan Garth', circle: 'garths', introduced: 23, initials: 'SG', role: 'Usually called Mrs Garth', detail: 'Caleb’s practical, educated wife and the firm center of the Garth household.' },
@@ -243,9 +243,9 @@ const ties: Tie[] = [
   { from: 'crowse', to: 'mary', introduced: 14, label: 'mentioned by Mary' },
   { from: 'bowyer', to: 'rosamond', introduced: 16, label: 'musical acquaintance' },
 
-  { from: 'naumann', to: 'will', introduced: 22, label: 'artist friends' },
-  { from: 'naumann', to: 'dorothea', introduced: 22, label: 'meets in Rome' },
-  { from: 'naumann', to: 'casaubon', introduced: 22, label: 'meets in Rome' },
+  { from: 'naumann', to: 'will', introduced: 19, label: 'artist friends' },
+  { from: 'naumann', to: 'dorothea', introduced: 19, label: 'meets in Rome' },
+  { from: 'naumann', to: 'casaubon', introduced: 19, label: 'meets in Rome' },
 
   { from: 'caleb', to: 'susan', introduced: 23, label: 'married' },
   { from: 'caleb', to: 'mary', introduced: 23, label: 'father & daughter' },
@@ -367,8 +367,17 @@ function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: numbe
   if (key === 'bulstrode|lydgate') {
     return 'Bulstrode and Lydgate are allied through the hospital. Bulstrode values Lydgate’s reforming energy, and Lydgate’s professional plans gain support from Bulstrode’s civic influence.';
   }
+  if (key === 'dorothea|naumann') {
+    return 'In the Vatican sculpture gallery, Naumann notices Dorothea standing near the Ariadne and is struck by the contrast he imagines between her grave appearance and the antique statue. He wants to paint her, but Dorothea, uneasy at the strangers’ attention, leaves before they speak.';
+  }
+  if (key === 'casaubon|naumann') {
+    return 'Naumann sees Casaubon only briefly in Rome, when he notices Dorothea’s wedding ring and assumes the older scholar is her father. The mistaken impression tells us more about Naumann’s quick, artistic way of seeing than about any real acquaintance between the two men.';
+  }
+  if (key === 'naumann|will') {
+    return 'Naumann and Will are friends in Rome’s artistic circle. While Naumann is eager to turn Dorothea into a subject for a painting, Will resists his friend’s excited pursuit and makes clear that she is connected to his own family.';
+  }
 
-  return `${left.name} and ${right.name} are connected as ${tie.label}. By this chapter, their connection is established in the story; this note keeps to what is visible so far.`;
+  return `At this point, ${left.name} and ${right.name} are ${tie.label}. The novel has established this relationship, but has not yet given it a larger turn.`;
 }
 
 export default function Home() {
