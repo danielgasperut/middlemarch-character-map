@@ -307,6 +307,17 @@ const ties: Tie[] = [
 const circleById = new Map(circles.map((circle) => [circle.id, circle]));
 const personById = new Map(people.map((person) => [person.id, person]));
 
+function circlePresentation(circle: (typeof circles)[number], chapter: number) {
+  if (circle.id === 'brookes') {
+    if (chapter < 5) return { title: 'The Brooke household', eyebrow: 'Tipton Grange' };
+    if (chapter < 20) return { title: 'The Brookes & Lowick', eyebrow: 'Family, courtship & parish life' };
+  }
+  if (circle.id === 'stone' && chapter < 12) {
+    return { title: 'Stone Court & Mary Garth', eyebrow: 'A household on the edge of the Vincy circle' };
+  }
+  return { title: circle.title, eyebrow: circle.eyebrow };
+}
+
 function relationshipStatement(left: Person, right: Person, label: string) {
   const names = left.name + ' and ' + right.name;
   const directed: Record<string, string> = {
@@ -600,6 +611,7 @@ export default function Home() {
             {circles.map((circle) => {
               const members = visiblePeople.filter((person) => person.circle === circle.id);
               if (!members.length) return null;
+              const presentation = circlePresentation(circle, chapter);
               const groupTies = visibleTies.filter((tie) => {
                 const left = personById.get(tie.from);
                 const right = personById.get(tie.to);
@@ -609,7 +621,7 @@ export default function Home() {
               return (
                 <section className={'circle-section tone-' + circle.tone} key={circle.id} aria-labelledby={circle.id + '-title'}>
                   <div className="circle-heading">
-                    <div><p>{circle.eyebrow}</p><h2 id={circle.id + '-title'}>{circle.title}</h2></div>
+                    <div><p>{presentation.eyebrow}</p><h2 id={circle.id + '-title'}>{presentation.title}</h2></div>
                     <span>{members.length}</span>
                   </div>
                   <div className="people-grid">
@@ -623,7 +635,7 @@ export default function Home() {
                     ))}
                   </div>
                   {groupTies.length > 0 && (
-                    <div className="group-ties" aria-label={circle.title + ' relationships'}>
+                    <div className="group-ties" aria-label={presentation.title + ' relationships'}>
                       {groupTies.map((tie, index) => (
                         <button type="button" className="tie-row" key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(tie.from)}>
                           <span>{named(tie.from)}</span><em>{tie.label}</em><span>{named(tie.to)}</span>
@@ -697,7 +709,7 @@ export default function Home() {
             </div>
             <div className="circle-legend">
               {circles.filter((circle) => visiblePeople.some((person) => person.circle === circle.id)).map((circle) => (
-                <span className={'legend-chip tone-' + circle.tone} key={circle.id}><i />{circle.title}</span>
+                <span className={'legend-chip tone-' + circle.tone} key={circle.id}><i />{circlePresentation(circle, chapter).title}</span>
               ))}
             </div>
             <div className="bridge-grid">
@@ -709,11 +721,11 @@ export default function Home() {
                 return (
                   <article className="bridge-card" key={tie.from + '-' + tie.to + '-' + index}>
                     <button className={'bridge-person tone-' + leftCircle.tone} type="button" onClick={() => setSelectedId(left.id)}>
-                      <span>{left.initials}</span><strong>{left.name}</strong><small>{leftCircle.title}</small>
+                      <span>{left.initials}</span><strong>{left.name}</strong><small>{circlePresentation(leftCircle, chapter).title}</small>
                     </button>
                     <div className="bridge-relation"><i /><em>{tie.label}</em><i /></div>
                     <button className={'bridge-person tone-' + rightCircle.tone} type="button" onClick={() => setSelectedId(right.id)}>
-                      <span>{right.initials}</span><strong>{right.name}</strong><small>{rightCircle.title}</small>
+                      <span>{right.initials}</span><strong>{right.name}</strong><small>{circlePresentation(rightCircle, chapter).title}</small>
                     </button>
                   </article>
                 );
