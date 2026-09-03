@@ -264,6 +264,7 @@ button { font: inherit; }
 .tone-violet { --accent-color: #6a61b5; --accent-pale: #f0effa; }
 .tone-rose { --accent-color: #b95571; --accent-pale: #fff0f3; }
 .tone-gold { --accent-color: #9a671e; --accent-pale: #fff6df; }
+.tone-olive { --accent-color: #6d7837; --accent-pale: #f3f7e7; }
 .tone-sage { --accent-color: #4b7868; --accent-pale: #edf7f1; }
 .tone-blue { --accent-color: #4b74a8; --accent-pale: #edf4fb; }
 .tone-teal { --accent-color: #24747c; --accent-pale: #eaf7f7; }
