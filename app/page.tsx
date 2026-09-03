@@ -307,6 +307,129 @@ const ties: Tie[] = [
 const circleById = new Map(circles.map((circle) => [circle.id, circle]));
 const personById = new Map(people.map((person) => [person.id, person]));
 
+function relationshipStatement(left: Person, right: Person, label: string) {
+  const names = left.name + ' and ' + right.name;
+  const directed: Record<string, string> = {
+    'uncle & guardian': `${left.name} is ${right.name}’s uncle and guardian.`,
+    'mother & son': `${left.name} is ${right.name}’s mother.`,
+    'mother & daughter': `${left.name} is ${right.name}’s mother.`,
+    'father & son': `${left.name} is ${right.name}’s father.`,
+    'father & daughter': `${left.name} is ${right.name}’s father.`,
+    'maid & mistress': `${left.name} works as ${right.name}’s maid.`,
+    'household staff': `${left.name} belongs to ${right.name}’s household staff.`,
+    'curate & rector': `${left.name} serves as curate under ${right.name} at Lowick.`,
+    'children’s governess': `${left.name} teaches the younger children in ${right.name}’s household.`,
+    'former schoolmistress': `${left.name} was ${right.name}’s schoolmistress.`,
+    'Lowick parishioner': `${left.name} is a parishioner at ${right.name}’s Lowick living.`,
+    'neighboring rector': `${left.name} is the neighboring rector in ${right.name}’s circle.`,
+    'late sister married him': `${left.name} is connected to ${right.name} through her late sister’s marriage.`,
+    'former attachment': `${left.name} had an earlier attachment to ${right.name} before coming to Middlemarch.`,
+    'admires': `${left.name} openly admires ${right.name}.`,
+    'employer & companion': `${left.name} employs ${right.name} as his companion at Stone Court.`,
+    'master & servant': `${left.name} is ${right.name}’s master at Stone Court.`,
+    'doctor & patient': `${left.name} is called on as ${right.name}’s doctor.`,
+    'family doctor': `${left.name} is the established doctor for ${right.name}’s family.`,
+    'successor in practice': `${left.name} takes over the practice that ${right.name} is leaving.`,
+    'supports as chaplain': `${left.name} is backing ${right.name} for the hospital chaplaincy.`,
+    'debt guaranteed by Caleb': `${left.name}’s debt has drawn ${right.name} into an unwelcome act of help.`,
+    'horse deal & debt': `${left.name}’s dealings with ${right.name} are part of the money trouble surrounding his horse.`,
+    'examines Fred’s horse': `${left.name} is brought in to examine ${right.name}’s horse.`,
+    'auctioneer & adviser': `${left.name} is helping ${right.name} with the business of an estate sale.`,
+    'buys Stone Court from': `${left.name} buys Stone Court from ${right.name}.`,
+    'former associate & blackmailer': `${left.name} and ${right.name} share a troubled past that has returned as a threat.`,
+    'nurse & patient': `${left.name} is engaged to nurse ${right.name}.`,
+    'employed by': `${left.name} is employed by ${right.name}.`,
+    'tenant & landlord': `${left.name} is one of ${right.name}’s tenants.`,
+    'butler & master': `${left.name} is ${right.name}’s butler.`,
+    'aunt & nephew': `${left.name} is ${right.name}’s aunt.`,
+    'paternal grandmother & grandson': `${left.name} is ${right.name}’s paternal grandmother.`,
+    'first wife & husband': `${left.name} was ${right.name}’s first wife.`,
+    'hidden family connection revealed': `${left.name} and ${right.name} are linked by a family history that has only now come to light.`,
+    'voter courted by': `${left.name} is one of the voters ${right.name} hopes to win over.`,
+    'medical comparison': `${left.name} is a point of comparison in the local talk about ${right.name}’s medical work.`,
+  };
+  if (directed[label]) return directed[label];
+
+  const shared: Record<string, string> = {
+    'sisters': `${names} are sisters.`,
+    'siblings': `${names} are siblings.`,
+    'brothers': `${names} are brothers.`,
+    'brother & sister': `${names} are brother and sister.`,
+    'cousins': `${names} are cousins.`,
+    'cousins / relatives': `${names} are related cousins.`,
+    'widow & late husband': `${left.name} is the widow of ${right.name}.`,
+    'initially courts': `${left.name} has been courting ${right.name}.`,
+    'mother & son': `${left.name} is ${right.name}’s mother.`,
+    'mother & daughter': `${left.name} is ${right.name}’s mother.`,
+    'father & son': `${left.name} is ${right.name}’s father.`,
+    'father & daughter': `${left.name} is ${right.name}’s father.`,
+    'married': `${names} are married.`,
+    'engaged': `${names} are engaged.`,
+    'friends': `${names} are friends.`,
+    'neighbors & friends': `${names} are neighbors and friends.`,
+    'artist friends': `${names} are friends in Rome’s artistic circle.`,
+    'professional rivals': `${names} are professional rivals.`,
+    'medical colleagues': `${names} work in the same medical world.`,
+    'fellow physicians': `${names} are fellow physicians.`,
+    'former roommates': `${names} once shared rooms in Paris.`,
+    'correspondents': `${names} are correspondents.`,
+    'hospital board': `${names} meet through the hospital board.`,
+    'civic opponents': `${names} are on opposing sides of a civic dispute.`,
+    'social acquaintance': `${names} move in the same Middlemarch social circle.`,
+    'town acquaintances': `${names} know one another through town life.`,
+    'social rivals': `${names} compete for standing within Middlemarch society.`,
+    'family connection': `${names} are related through the Featherstone family.`,
+    'family friend': `${left.name} is a family friend of ${right.name}.`,
+    'friends & allies': `${names} are friends and allies.`,
+    'chaplaincy candidates': `${names} are on opposite sides of the contest for the hospital chaplaincy.`,
+    'old school friends': `${names} knew one another at school.`,
+    'musical acquaintance': `${names} know one another through music and Middlemarch society.`,
+    'meets in Rome': `${names} meet briefly in Rome.`,
+    'acquainted': `${names} are acquainted.`,
+    'mentioned by Mary': `${left.name} appears in ${right.name}’s conversation about the clergy.`,
+    'would-be suitor': `${left.name} hopes to marry ${right.name}.`,
+    'estate business': `${names} are brought together by business over the Featherstone estate.`,
+    'stepfather & stepson': `${left.name} is ${right.name}’s stepfather.`,
+    'guest & cousin by marriage': `${left.name} is visiting as ${right.name}’s cousin by marriage.`,
+    'son & principal heir': `${left.name} is ${right.name}’s son and principal heir.`,
+    'exchange town news': `${names} trade the news that moves quickly through Middlemarch.`,
+  };
+  return shared[label] ?? `${names} have an established place in one another’s lives.`;
+}
+
+function profileAtChapter(person: Person, chapter: number) {
+  const detail = person.detail
+    .replace(/\s*By Chapter \d+[^.]*\./gi, '')
+    .replace(/;[^.]*by Chapter \d+[^.]*\./gi, '')
+    .replace(/\s*Later [^.]*\./gi, '');
+
+  if (person.id === 'dorothea') {
+    return chapter < 20
+      ? { role: 'Arthur Brooke’s elder niece', detail: 'The earnest elder of the two Brooke sisters, living at Tipton Grange with Celia under their uncle Arthur’s guardianship.' }
+      : { role: 'Mrs Edward Casaubon', detail: 'Arthur Brooke’s earnest elder niece and Celia’s sister, now beginning married life with Edward Casaubon at Lowick.' };
+  }
+  if (person.id === 'casaubon') {
+    return chapter < 20
+      ? { role: 'Scholar and clergyman at Lowick', detail: 'A reserved scholar of religious history and owner of Lowick Manor, whose learning makes a strong impression on Dorothea Brooke.' }
+      : { role: 'Dorothea’s husband; scholar at Lowick', detail: 'A reserved scholar of religious history, now married to Dorothea and living with her at Lowick.' };
+  }
+  if (person.id === 'will') {
+    return chapter < 19
+      ? { role: 'Edward Casaubon’s young cousin', detail: 'A lively young relation of Casaubon’s, who has only briefly met Dorothea before leaving England.' }
+      : { role: 'Edward Casaubon’s young cousin', detail: 'A lively young relation of Casaubon’s, encountered again by Dorothea and Casaubon in Rome.' };
+  }
+  if (person.id === 'chettam') {
+    return chapter < 5
+      ? { role: 'Baronet at Freshitt Hall', detail: 'A considerate neighboring baronet who is drawn to Dorothea Brooke and often visits the Brooke household.' }
+      : { role: 'Baronet at Freshitt Hall', detail: 'A considerate neighboring baronet at Freshitt Hall who remains close to the Brooke circle after Dorothea’s engagement.' };
+  }
+  if (person.id === 'celia') {
+    return { role: 'Dorothea’s younger sister', detail: 'Dorothea’s affectionate younger sister, practical and observant in the Brooke household at Tipton Grange.' };
+  }
+
+  return { role: person.role.replace(/^Later\s+/i, ''), detail };
+}
+
 function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: number) {
   const key = [left.id, right.id].sort().join('|');
 
@@ -377,7 +500,7 @@ function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: numbe
     return 'Naumann and Will are friends in Rome’s artistic circle. While Naumann is eager to turn Dorothea into a subject for a painting, Will resists his friend’s excited pursuit and makes clear that she is connected to his own family.';
   }
 
-  return `At this point, ${left.name} and ${right.name} are ${tie.label}. The novel has established this relationship, but has not yet given it a larger turn.`;
+  return `${relationshipStatement(left, right, tie.label)} So far, the novel has not shown a separate episode that changes that relationship.`;
 }
 
 export default function Home() {
@@ -392,6 +515,7 @@ export default function Home() {
     [chapter, visibleIds],
   );
   const selected = personById.get(selectedId) ?? visiblePeople[0];
+  const selectedProfile = selected ? profileAtChapter(selected, chapter) : null;
 
   useEffect(() => {
     if (!visibleIds.has(selectedId)) setSelectedId(visiblePeople[0]?.id ?? 'dorothea');
@@ -493,7 +617,7 @@ export default function Home() {
                       <button className={['person-card', selected?.id === person.id ? 'is-selected' : ''].filter(Boolean).join(' ')} key={person.id} type="button" onClick={() => setSelectedId(person.id)} aria-pressed={selected?.id === person.id}>
                         <span className="person-initials">{person.initials}</span>
                         <span className="person-name">{person.name}</span>
-                        <span className="person-role">{person.role}</span>
+                        <span className="person-role">{profileAtChapter(person, chapter).role}</span>
                         <ChevronRight className="card-chevron" size={18} aria-hidden="true" />
                       </button>
                     ))}
@@ -517,9 +641,9 @@ export default function Home() {
               <div className="detail-topline"><span>Selected person</span><span>First shown: Book {selectedPosition?.book.roman} · Ch. {selected.introduced}</span></div>
               <div className="detail-identity">
                 <div className="detail-initials">{selected.initials}</div>
-                <div><h2>{selected.name}</h2><p>{selected.role}</p></div>
+                <div><h2>{selected.name}</h2><p>{selectedProfile?.role}</p></div>
               </div>
-              <p className="detail-copy">{selected.detail}</p>
+              <p className="detail-copy">{selectedProfile?.detail}</p>
               <div className="detail-divider" />
               <section className="relationship-section" aria-label={'Relationship map for ' + selected.name}>
                 <p className="relationship-title"><Link2 size={16} aria-hidden="true" /> Relationship map</p>
