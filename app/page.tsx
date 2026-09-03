@@ -10,8 +10,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-import { Slider } from '@/components/ui/slider';
-
 type Person = {
   id: string;
   name: string;
@@ -28,15 +26,6 @@ type Tie = {
   introduced: number;
   label: string;
   through?: number;
-};
-
-type RelationshipConnection = {
-  tie: Tie;
-  person: Person;
-  x: number;
-  y: number;
-  labelX: number;
-  labelY: number;
 };
 
 const books = [
@@ -338,31 +327,6 @@ export default function Home() {
   const selectedTies = visibleTies.filter((tie) => tie.from === selected?.id || tie.to === selected?.id);
   const currentPosition = bookPosition(chapter);
   const selectedPosition = selected ? bookPosition(selected.introduced) : null;
-  const visualTies = selectedTies.slice(0, 10);
-  const relationshipConnections = selected
-    ? visualTies.reduce<RelationshipConnection[]>((connections, tie, index) => {
-        const otherId = tie.from === selected.id ? tie.to : tie.from;
-        const person = personById.get(otherId);
-        if (!person) return connections;
-
-        const count = visualTies.length;
-        const angle =
-          (count === 1 ? 0 : -Math.PI / 2) +
-          (index * Math.PI * 2) / count;
-        const cosine = Math.cos(angle);
-        const sine = Math.sin(angle);
-
-        connections.push({
-          tie,
-          person,
-          x: 160 + cosine * 112,
-          y: 128 + sine * 86,
-          labelX: 160 + cosine * 53,
-          labelY: 128 + sine * 46 + (sine < 0 ? -8 : 13),
-        });
-        return connections;
-      }, [])
-    : [];
   const crossCircleTies = visibleTies.filter((tie) => {
     const left = personById.get(tie.from);
     const right = personById.get(tie.to);
@@ -391,14 +355,15 @@ export default function Home() {
             <p>Move to the chapter you’ve finished. Later people and connections stay out of sight.</p>
           </div>
           <div className="slider-wrap">
-            <Slider
+            <input
               aria-label="Chapter completed"
+              className="chapter-slider"
               min={1}
               max={86}
               step={1}
-              value={[chapter]}
-              onValueChange={(value) => setChapter(value[0] ?? 1)}
-              className="chapter-slider"
+              onChange={(event) => setChapter(Number(event.target.value))}
+              type="range"
+              value={chapter}
             />
             <div className="slider-reading-position">
               <strong>{currentPosition.label}</strong>
@@ -474,42 +439,30 @@ export default function Home() {
               <div className="detail-divider" />
               <section className="relationship-section" aria-label={'Relationship map for ' + selected.name}>
                 <p className="relationship-title"><Link2 size={16} aria-hidden="true" /> Relationship map</p>
-                {relationshipConnections.length ? (
+                {selectedTies.length ? (
                   <div className="relationship-network">
-                    <svg viewBox="0 0 320 256" aria-hidden="true">
-                      {relationshipConnections.map((connection, index) => (
-                        <g key={connection.tie.from + '-' + connection.tie.to + '-' + index}>
-                          <line x1="160" y1="128" x2={connection.x} y2={connection.y} />
-                          <circle cx={connection.labelX} cy={connection.labelY - 3} r="2.5" />
-                          <text x={connection.labelX} y={connection.labelY}>{connection.tie.label}</text>
-                        </g>
-                      ))}
-                    </svg>
                     <div className="relationship-center">
                       <span>{selected.initials}</span>
                       <strong>{selected.name}</strong>
                     </div>
-                    {relationshipConnections.map((connection, index) => (
-                      <button
-                        aria-label={selected.name + ' — ' + connection.tie.label + ' — ' + connection.person.name}
-                        className="relationship-node"
-                        key={connection.tie.from + '-' + connection.tie.to + '-' + index}
-                        onClick={() => setSelectedId(connection.person.id)}
-                        style={{
-                          left: (connection.x / 320) * 100 + '%',
-                          top: (connection.y / 256) * 100 + '%',
-                        }}
-                        type="button"
-                      >
-                        <span>{connection.person.initials}</span>
-                        <strong>{connection.person.name}</strong>
-                      </button>
-                    ))}
+                    <div className="relationship-branches">
+                      {selectedTies.map((tie, index) => {
+                        const otherId = tie.from === selected.id ? tie.to : tie.from;
+                        const person = personById.get(otherId);
+                        if (!person) return null;
+                        return (
+                          <button aria-label={selected.name + ' — ' + tie.label + ' — ' + person.name} className="relationship-node" key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(person.id)} type="button">
+                            <span className="relationship-label">{tie.label}</span>
+                            <span className="relationship-node-avatar">{person.initials}</span>
+                            <strong>{person.name}</strong>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <p className="relationship-empty">No named tie is visible at this reading position yet.</p>
                 )}
-                {selectedTies.length > 10 && <p className="network-note">The map shows ten nearby people; every connection is listed below.</p>}
               </section>
               <div className="detail-connections">
                 <p>All connections shown so far</p>
