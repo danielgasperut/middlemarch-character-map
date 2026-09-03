@@ -551,6 +551,12 @@ export default function Home() {
     const right = personById.get(tie.to);
     return left && right && left.circle !== right.circle;
   });
+  const crossNodeIds = [...new Set(crossCircleTies.flatMap((tie) => [tie.from, tie.to]))];
+  const crossNodes = crossNodeIds.map((id, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / crossNodeIds.length;
+    return { id, x: 50 + Math.cos(angle) * 39, y: 50 + Math.sin(angle) * 36 };
+  });
+  const crossNodeById = new Map(crossNodes.map((node) => [node.id, node]));
 
   return (
     <main className="map-page">
@@ -712,23 +718,30 @@ export default function Home() {
                 <span className={'legend-chip tone-' + circle.tone} key={circle.id}><i />{circlePresentation(circle, chapter).title}</span>
               ))}
             </div>
-            <div className="bridge-grid">
+            <div className="cross-network" aria-label="Cross-circle relationship map">
+              <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {crossCircleTies.map((tie, index) => {
+                  const from = crossNodeById.get(tie.from)!;
+                  const to = crossNodeById.get(tie.to)!;
+                  return <line key={tie.from + '-' + tie.to + '-' + index} x1={from.x} y1={from.y} x2={to.x} y2={to.y} />;
+                })}
+              </svg>
+              <div className="cross-network-core"><span>MM</span><strong>Middlemarch</strong></div>
+              {crossNodes.map((node) => {
+                const person = personById.get(node.id)!;
+                const circle = circleById.get(person.circle)!;
+                return (
+                  <button aria-label={'Select ' + person.name} className={'cross-network-node tone-' + circle.tone} key={person.id} onClick={() => setSelectedId(person.id)} style={{ left: node.x + '%', top: node.y + '%' }} type="button">
+                    <span>{person.initials}</span><strong>{person.name}</strong>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="cross-network-key" aria-label="Cross-circle connections">
               {crossCircleTies.map((tie, index) => {
                 const left = personById.get(tie.from)!;
                 const right = personById.get(tie.to)!;
-                const leftCircle = circleById.get(left.circle)!;
-                const rightCircle = circleById.get(right.circle)!;
-                return (
-                  <article className="bridge-card" key={tie.from + '-' + tie.to + '-' + index}>
-                    <button className={'bridge-person tone-' + leftCircle.tone} type="button" onClick={() => setSelectedId(left.id)}>
-                      <span>{left.initials}</span><strong>{left.name}</strong><small>{circlePresentation(leftCircle, chapter).title}</small>
-                    </button>
-                    <div className="bridge-relation"><i /><em>{tie.label}</em><i /></div>
-                    <button className={'bridge-person tone-' + rightCircle.tone} type="button" onClick={() => setSelectedId(right.id)}>
-                      <span>{right.initials}</span><strong>{right.name}</strong><small>{circlePresentation(rightCircle, chapter).title}</small>
-                    </button>
-                  </article>
-                );
+                return <button key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(left.id)} type="button"><span>{left.name}</span><i /><em>{tie.label}</em><i /><span>{right.name}</span></button>;
               })}
             </div>
           </section>
