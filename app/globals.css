@@ -591,7 +591,7 @@ button { font: inherit; }
   align-items: center;
   min-height: 6rem;
   padding: .7rem;
-  border: 1px solid #e2e7f0;
+  border: 1px solid #d8dfee;
   border-radius: .9rem;
   background: linear-gradient(145deg, #fcfdff, #f8f9fd);
 }
@@ -622,9 +622,40 @@ button { font: inherit; }
 .bridge-person strong { overflow: hidden; max-width: 100%; font-family: Georgia, "Times New Roman", serif; font-size: .88rem; text-overflow: ellipsis; white-space: nowrap; }
 .bridge-person small { overflow: hidden; max-width: 100%; color: #768199; font-size: .62rem; text-overflow: ellipsis; white-space: nowrap; }
 .bridge-person:hover > span, .bridge-person:focus-visible > span { outline: 2px solid var(--accent-color); outline-offset: 2px; transform: translateY(-1px); }
-.bridge-relation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .3rem; min-width: 0; }
-.bridge-relation i { height: 1px; background: #bdc5d7; }
-.bridge-relation em { max-width: 8.5rem; color: #66718b; font-size: .68rem; font-style: normal; font-weight: 800; line-height: 1.2; text-align: center; }
+.bridge-relation { display: grid; grid-template-columns: minmax(1rem, 1fr) auto minmax(1rem, 1fr); align-items: center; gap: .35rem; min-width: 0; }
+.bridge-relation i {
+  position: relative;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a4a0d7, #716bb8);
+}
+.bridge-relation i:first-child::before,
+.bridge-relation i:last-child::after {
+  position: absolute;
+  top: 50%;
+  width: .42rem;
+  height: .42rem;
+  border: 2px solid #716bb8;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
+  transform: translateY(-50%);
+}
+.bridge-relation i:first-child::before { left: 0; }
+.bridge-relation i:last-child::after { right: 0; }
+.bridge-relation em {
+  max-width: 8.5rem;
+  padding: .35rem .48rem;
+  border: 1px solid #d9d7f1;
+  border-radius: .5rem;
+  color: #514d8d;
+  background: #f4f3ff;
+  font-size: .68rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
 .scope-note { margin: 1rem .2rem 0; color: #727d94; font-size: .78rem; line-height: 1.45; }
 
 @media (max-width: 900px) {
