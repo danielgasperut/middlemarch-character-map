@@ -310,6 +310,7 @@ const personById = new Map(people.map((person) => [person.id, person]));
 export default function Home() {
   const [chapter, setChapter] = useState(1);
   const [selectedId, setSelectedId] = useState('dorothea');
+  const [relationshipFocus, setRelationshipFocus] = useState<Tie | null>(null);
 
   const visiblePeople = useMemo(() => people.filter((person) => person.introduced <= chapter), [chapter]);
   const visibleIds = useMemo(() => new Set(visiblePeople.map((person) => person.id)), [visiblePeople]);
@@ -323,8 +324,18 @@ export default function Home() {
     if (!visibleIds.has(selectedId)) setSelectedId(visiblePeople[0]?.id ?? 'dorothea');
   }, [selectedId, visibleIds, visiblePeople]);
 
+  useEffect(() => {
+    setRelationshipFocus(null);
+  }, [chapter, selectedId]);
+
   const named = (id: string) => personById.get(id)?.name ?? '';
   const selectedTies = visibleTies.filter((tie) => tie.from === selected?.id || tie.to === selected?.id);
+  const focusedTie = relationshipFocus && selectedTies.includes(relationshipFocus) ? relationshipFocus : null;
+  const focusedPerson = focusedTie ? personById.get(focusedTie.from === selected?.id ? focusedTie.to : focusedTie.from) : null;
+  const relationshipNodes = selectedTies.map((tie, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / selectedTies.length;
+    return { tie, x: 50 + Math.cos(angle) * 39, y: 50 + Math.sin(angle) * 36 };
+  });
   const currentPosition = bookPosition(chapter);
   const selectedPosition = selected ? bookPosition(selected.introduced) : null;
   const crossCircleTies = visibleTies.filter((tie) => {
@@ -441,39 +452,37 @@ export default function Home() {
                 <p className="relationship-title"><Link2 size={16} aria-hidden="true" /> Relationship map</p>
                 {selectedTies.length ? (
                   <div className="relationship-network">
+                    <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      {relationshipNodes.map(({ tie, x, y }, index) => <line key={tie.from + '-' + tie.to + '-' + index} x1="50" y1="50" x2={x} y2={y} />)}
+                    </svg>
                     <div className="relationship-center">
                       <span>{selected.initials}</span>
                       <strong>{selected.name}</strong>
                     </div>
-                    <div className="relationship-branches">
-                      {selectedTies.map((tie, index) => {
+                    {relationshipNodes.map(({ tie, x, y }, index) => {
                         const otherId = tie.from === selected.id ? tie.to : tie.from;
                         const person = personById.get(otherId);
                         if (!person) return null;
                         return (
-                          <button aria-label={selected.name + ' — ' + tie.label + ' — ' + person.name} className="relationship-node" key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(person.id)} type="button">
-                            <span className="relationship-label">{tie.label}</span>
+                          <button aria-label={'Show the ' + tie.label + ' relationship between ' + selected.name + ' and ' + person.name} className={'relationship-node' + (focusedTie === tie ? ' is-active' : '')} key={tie.from + '-' + tie.to + '-' + index} onClick={() => setRelationshipFocus(tie)} style={{ left: x + '%', top: y + '%' }} type="button">
                             <span className="relationship-node-avatar">{person.initials}</span>
                             <strong>{person.name}</strong>
                           </button>
                         );
                       })}
-                    </div>
                   </div>
                 ) : (
                   <p className="relationship-empty">No named tie is visible at this reading position yet.</p>
                 )}
               </section>
               <div className="detail-connections">
-                <p>All connections shown so far</p>
-                {selectedTies.length ? (
-                  <ul>
-                    {selectedTies.map((tie, index) => {
-                      const otherId = tie.from === selected.id ? tie.to : tie.from;
-                      return <li key={tie.from + '-' + tie.to + '-' + index}><button type="button" onClick={() => setSelectedId(otherId)}>{named(otherId)}</button><span>{tie.label}</span></li>;
-                    })}
-                  </ul>
-                ) : <span className="no-ties">No named connection is shown yet.</span>}
+                {focusedTie && focusedPerson ? (
+                  <>
+                    <p>Relationship at this chapter</p>
+                    <h3>{selected.name} &amp; {focusedPerson.name}</h3>
+                    <span className="relationship-summary">At {currentPosition.label}, this map records their relationship as <strong>{focusedTie.label}</strong>. Later developments remain hidden.</span>
+                  </>
+                ) : <span className="no-ties">Select a name in the map to read the chapter-safe relationship note.</span>}
               </div>
             </aside>
           )}
