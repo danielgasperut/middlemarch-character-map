@@ -367,6 +367,9 @@ button { font: inherit; }
   position: sticky;
   top: 1rem;
   align-self: start;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: clamp(1rem, 2vw, 1.4rem);
   border: 1px solid #d9dff1;
   border-radius: 1.15rem;
@@ -374,6 +377,8 @@ button { font: inherit; }
   background: linear-gradient(150deg, #263657, #354675);
   box-shadow: 0 12px 30px rgba(36, 48, 84, .17);
 }
+.detail-panel::-webkit-scrollbar { width: .55rem; }
+.detail-panel::-webkit-scrollbar-thumb { border: 2px solid #30416b; border-radius: 999px; background: rgba(222, 230, 255, .55); }
 .detail-topline { display: flex; justify-content: space-between; gap: .5rem; color: #c3cef1; font-size: .73rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .detail-identity { display: flex; align-items: center; gap: .8rem; margin-top: 1.25rem; }
 .detail-initials {
@@ -627,7 +632,7 @@ button { font: inherit; }
   .reading-copy > p:last-child { max-width: 35rem; }
   .chapter-actions { justify-content: flex-start; }
   .map-layout { grid-template-columns: 1fr; }
-  .detail-panel { position: relative; top: auto; order: -1; }
+  .detail-panel { position: relative; top: auto; max-height: none; overflow: visible; order: -1; }
   .circles { order: 1; }
   .bridge-grid { grid-template-columns: 1fr; }
 }
