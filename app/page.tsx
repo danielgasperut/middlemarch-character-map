@@ -319,7 +319,7 @@ const circleById = new Map(circles.map((circle) => [circle.id, circle]));
 const personById = new Map(people.map((person) => [person.id, person]));
 
 export default function Home() {
-  const [chapter, setChapter] = useState(22);
+  const [chapter, setChapter] = useState(1);
   const [selectedId, setSelectedId] = useState('dorothea');
 
   const visiblePeople = useMemo(() => people.filter((person) => person.introduced <= chapter), [chapter]);
