@@ -364,8 +364,9 @@ button { font: inherit; }
 .tie-row em { min-width: 6.2rem; padding: 0 .25rem; color: var(--accent-color); font-size: .73rem; font-style: normal; font-weight: 800; text-align: center; }
 
 .detail-panel {
-  position: relative;
-  top: auto;
+  position: sticky;
+  top: 1rem;
+  align-self: start;
   padding: clamp(1rem, 2vw, 1.4rem);
   border: 1px solid #d9dff1;
   border-radius: 1.15rem;
