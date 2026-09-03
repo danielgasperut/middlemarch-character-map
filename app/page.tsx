@@ -307,6 +307,70 @@ const ties: Tie[] = [
 const circleById = new Map(circles.map((circle) => [circle.id, circle]));
 const personById = new Map(people.map((person) => [person.id, person]));
 
+function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: number) {
+  const key = [left.id, right.id].sort().join('|');
+
+  if (key === 'brooke|celia') {
+    return chapter < 5
+      ? 'Arthur is Celia’s unmarried uncle and guardian. She lives with him at Tipton Grange, alongside her sister Dorothea.'
+      : 'Arthur is Celia’s uncle and guardian, and she remains part of his Tipton Grange household. He has allowed Dorothea’s marriage to Casaubon, while Celia responds to that choice with more practical reserve.';
+  }
+  if (key === 'brooke|dorothea') {
+    return chapter < 5
+      ? 'Arthur is Dorothea’s uncle and guardian. He gives her and Celia a generous home at Tipton Grange, though he does not always share Dorothea’s intensity of purpose.'
+      : 'Arthur remains Dorothea’s uncle and guardian. He has consented to her marriage with Casaubon, despite worries from people close to the family about the match.';
+  }
+  if (key === 'celia|dorothea') {
+    return chapter < 5
+      ? 'Celia and Dorothea are sisters living together under Arthur Brooke’s guardianship. Celia is affectionate but more worldly and practical than her elder sister.'
+      : 'Celia and Dorothea are sisters whose closeness is tested by Dorothea’s decision to marry Casaubon. Celia cares for her sister, but she is more alert to the ordinary human costs of the match.';
+  }
+  if (key === 'casaubon|dorothea') {
+    return tie.label === 'engaged'
+      ? 'Dorothea has accepted Edward Casaubon’s proposal. She sees his scholarly life as a chance to serve a serious purpose, while several people around her have reservations about the match.'
+      : 'Dorothea and Edward Casaubon are now married and living at Lowick. Their union is still being understood through Dorothea’s hopes for his work and the realities of their new household.';
+  }
+  if (key === 'chettam|dorothea') {
+    return chapter < 5
+      ? 'Sir James Chettam is drawn to Dorothea and hopes to marry her. He is a close neighbor of the Brooke household, but Dorothea’s attention is directed elsewhere.'
+      : 'Sir James Chettam had hoped to marry Dorothea, but she has chosen Casaubon. He remains connected to the Brooke circle and continues to treat her with consideration.';
+  }
+  if (key === 'celia|chettam') {
+    return tie.label === 'friends'
+      ? 'Celia and Sir James know one another through the Brooke circle. As Dorothea’s earlier courtship falls away, their quieter rapport becomes more visible.'
+      : tie.label === 'engaged'
+        ? 'Celia and Sir James are engaged. Their match grows out of long familiarity in the Brooke and Freshitt circle.'
+        : 'Celia and Sir James are married, joining the Brooke and Freshitt households.';
+  }
+  if (key === 'dorothea|will') {
+    return 'Dorothea and Will Ladislaw have met through Casaubon’s family circle. At this point they are acquaintances, and the novel has not yet disclosed anything beyond that connection.';
+  }
+  if (key === 'bulstrode|harriet') {
+    return 'Harriet and Nicholas Bulstrode are married. Harriet is Walter Vincy’s sister, making the Bulstrodes part of the wider Vincy family network.';
+  }
+  if (key === 'bulstrode|vincy') {
+    return 'Nicholas Bulstrode and Walter Vincy are brothers-in-law through Harriet Bulstrode. Their family connection also places the banker close to the Vincy household’s social world.';
+  }
+  if (key === 'fred|mary') {
+    return 'Fred and Mary have known one another since childhood. Fred’s attachment to Mary is clear, while Mary’s good sense makes her wary of his uncertainty and his expectations about money.';
+  }
+  if (key === 'lydgate|rosamond') {
+    return tie.label === 'mutual interest'
+      ? 'Lydgate and Rosamond have begun to notice one another in Middlemarch society. Their attraction is growing, but they are not yet formally committed.'
+      : tie.label === 'engaged'
+        ? 'Lydgate and Rosamond are engaged. Their courtship has moved quickly from social attraction to a formal promise.'
+        : 'Lydgate and Rosamond are married, linking the new doctor to the Vincy family.';
+  }
+  if (key === 'featherstone|mary') {
+    return 'Mary is Peter Featherstone’s paid companion at Stone Court. She gives him practical care and frank company, while the household’s family expectations make her position delicate.';
+  }
+  if (key === 'bulstrode|lydgate') {
+    return 'Bulstrode and Lydgate are allied through the hospital. Bulstrode values Lydgate’s reforming energy, and Lydgate’s professional plans gain support from Bulstrode’s civic influence.';
+  }
+
+  return `${left.name} and ${right.name} are connected as ${tie.label}. By this chapter, their connection is established in the story; this note keeps to what is visible so far.`;
+}
+
 export default function Home() {
   const [chapter, setChapter] = useState(1);
   const [selectedId, setSelectedId] = useState('dorothea');
@@ -480,7 +544,7 @@ export default function Home() {
                   <>
                     <p>Relationship at this chapter</p>
                     <h3>{selected.name} &amp; {focusedPerson.name}</h3>
-                    <span className="relationship-summary">At {currentPosition.label}, this map records their relationship as <strong>{focusedTie.label}</strong>. Later developments remain hidden.</span>
+                    <span className="relationship-summary">{relationshipRecap(selected, focusedPerson, focusedTie, chapter)}</span>
                   </>
                 ) : <span className="no-ties">Select a name in the map to read the chapter-safe relationship note.</span>}
               </div>
