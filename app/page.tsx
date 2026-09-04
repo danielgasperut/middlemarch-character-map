@@ -553,6 +553,8 @@ export default function Home() {
   });
   const currentPosition = bookPosition(chapter);
   const selectedPosition = selected ? bookPosition(selected.introduced) : null;
+  const visibleCircles = circles.filter((circle) => visiblePeople.some((person) => person.circle === circle.id));
+  const selectedCircleRow = Math.max(1, visibleCircles.findIndex((circle) => circle.id === selected?.circle) + 1);
   return (
     <main className="map-page">
       <div className="page-orb orb-one" />
@@ -608,10 +610,8 @@ export default function Home() {
 
         <div className="map-summary"><span>{visiblePeople.length} people</span><i /><span>{visibleTies.length} named ties</span></div>
         <div className="map-layout">
-          <section className="circles" aria-label="Character groups">
-            {circles.map((circle) => {
+            {visibleCircles.map((circle, circleIndex) => {
               const members = visiblePeople.filter((person) => person.circle === circle.id);
-              if (!members.length) return null;
               const presentation = circlePresentation(circle, chapter);
               const groupTies = visibleTies.filter((tie) => {
                 const left = personById.get(tie.from);
@@ -619,7 +619,7 @@ export default function Home() {
               });
 
               return (
-                <section className={'circle-section tone-' + circle.tone} key={circle.id} aria-labelledby={circle.id + '-title'}>
+                <section className={'circle-section tone-' + circle.tone} key={circle.id} aria-labelledby={circle.id + '-title'} style={{ gridRow: circleIndex + 1 }}>
                   <div className="circle-heading">
                     <div><p>{presentation.eyebrow}</p><h2 id={circle.id + '-title'}>{presentation.title}</h2></div>
                     <span>{members.length}</span>
@@ -651,10 +651,9 @@ export default function Home() {
                 </section>
               );
             })}
-          </section>
 
           {selected && (
-            <aside className="detail-panel" aria-live="polite">
+            <aside className="detail-panel" aria-live="polite" style={{ gridRow: selectedCircleRow }}>
               <div className="detail-topline"><span>Selected person</span><span>First shown: Book {selectedPosition?.book.roman} · Ch. {selected.introduced}</span></div>
               <div className="detail-identity">
                 <div className="detail-initials">{selected.initials}</div>

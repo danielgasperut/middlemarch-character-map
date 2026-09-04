@@ -233,9 +233,10 @@ button { font: inherit; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 25rem);
   align-items: start;
-  gap: clamp(1rem, 2.6vw, 1.75rem);
+  column-gap: clamp(1rem, 2.6vw, 1.75rem);
+  row-gap: 1rem;
 }
-.circles { display: grid; gap: 1rem; }
+.circle-section { grid-column: 1; }
 .map-summary {
   display: flex;
   align-items: center;
@@ -370,6 +371,7 @@ button { font: inherit; }
 .tie-row em { min-width: 6.2rem; padding: 0 .25rem; color: var(--accent-color); font-size: .73rem; font-style: normal; font-weight: 800; text-align: center; }
 
 .detail-panel {
+  grid-column: 2;
   position: sticky;
   top: 1rem;
   align-self: start;
@@ -800,8 +802,7 @@ button { font: inherit; }
   .reading-copy > p:last-child { max-width: 35rem; }
   .chapter-actions { justify-content: flex-start; }
   .map-layout { grid-template-columns: 1fr; }
-  .detail-panel { position: relative; top: auto; max-height: none; overflow: visible; order: -1; }
-  .circles { order: 1; }
+  .detail-panel { position: relative; top: auto; grid-column: 1 !important; grid-row: auto !important; max-height: none; overflow: visible; order: -1; }
   .bridge-grid { grid-template-columns: 1fr; }
   .cross-network { min-height: 27rem; }
   .tree-branch { grid-template-columns: minmax(6rem, 1fr) minmax(6rem, auto) minmax(6rem, 1fr); }
