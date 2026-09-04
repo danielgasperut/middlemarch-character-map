@@ -533,10 +533,17 @@ export default function Home() {
   }, [selectedId, visibleIds, visiblePeople]);
 
   useEffect(() => {
-    setRelationshipFocus(null);
-  }, [chapter, selectedId]);
+    setRelationshipFocus((focus) => {
+      if (!focus || !visibleTies.includes(focus)) return null;
+      return focus.from === selectedId || focus.to === selectedId ? focus : null;
+    });
+  }, [selectedId, visibleTies]);
 
   const named = (id: string) => personById.get(id)?.name ?? '';
+  const openRelationship = (tie: Tie) => {
+    setSelectedId(tie.from);
+    setRelationshipFocus(tie);
+  };
   const selectedTies = visibleTies.filter((tie) => tie.from === selected?.id || tie.to === selected?.id);
   const focusedTie = relationshipFocus && selectedTies.includes(relationshipFocus) ? relationshipFocus : null;
   const focusedPerson = focusedTie ? personById.get(focusedTie.from === selected?.id ? focusedTie.to : focusedTie.from) : null;
@@ -639,13 +646,16 @@ export default function Home() {
                     ))}
                   </div>
                   {groupTies.length > 0 && (
-                    <div className="group-ties" aria-label={presentation.title + ' relationships'}>
-                      {groupTies.map((tie, index) => (
-                        <button type="button" className="tie-row" key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(tie.from)}>
-                          <span>{named(tie.from)}</span><em>{tie.label}</em><span>{named(tie.to)}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <details className="group-relationships">
+                      <summary>{groupTies.length} relationship{groupTies.length === 1 ? '' : 's'} shown so far</summary>
+                      <div className="group-ties" aria-label={presentation.title + ' relationships'}>
+                        {groupTies.map((tie, index) => (
+                          <button type="button" className="tie-row" key={tie.from + '-' + tie.to + '-' + index} onClick={() => openRelationship(tie)}>
+                            <span>{named(tie.from)}</span><em>{tie.label}</em><span>{named(tie.to)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </details>
                   )}
                 </section>
               );
