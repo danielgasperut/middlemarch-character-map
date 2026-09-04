@@ -551,12 +551,10 @@ export default function Home() {
     const right = personById.get(tie.to);
     return left && right && left.circle !== right.circle;
   });
-  const crossNodeIds = [...new Set(crossCircleTies.flatMap((tie) => [tie.from, tie.to]))];
-  const crossNodes = crossNodeIds.map((id, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / crossNodeIds.length;
-    return { id, x: 50 + Math.cos(angle) * 39, y: 50 + Math.sin(angle) * 36 };
-  });
-  const crossNodeById = new Map(crossNodes.map((node) => [node.id, node]));
+  const crossTreeGroups = circles.map((circle) => ({
+    circle,
+    ties: crossCircleTies.filter((tie) => personById.get(tie.from)?.circle === circle.id),
+  })).filter((group) => group.ties.length > 0);
 
   return (
     <main className="map-page">
@@ -713,36 +711,26 @@ export default function Home() {
               </div>
               <span>{crossCircleTies.length} bridges</span>
             </div>
-            <div className="circle-legend">
-              {circles.filter((circle) => visiblePeople.some((person) => person.circle === circle.id)).map((circle) => (
-                <span className={'legend-chip tone-' + circle.tone} key={circle.id}><i />{circlePresentation(circle, chapter).title}</span>
+            <div className="cross-tree" aria-label="Cross-circle relationship tree">
+              {crossTreeGroups.map(({ circle, ties: groupTies }) => (
+                <section className={'tree-group tone-' + circle.tone} key={circle.id}>
+                  <h3>{circlePresentation(circle, chapter).title}</h3>
+                  <div className="tree-branches">
+                    {groupTies.map((tie, index) => {
+                      const from = personById.get(tie.from)!;
+                      const to = personById.get(tie.to)!;
+                      const toCircle = circleById.get(to.circle)!;
+                      return (
+                        <div className="tree-branch" key={tie.from + '-' + tie.to + '-' + index}>
+                          <button className="tree-person tree-source" onClick={() => setSelectedId(from.id)} type="button"><span>{from.initials}</span>{from.name}</button>
+                          <span className="tree-link"><i /><em>{tie.label}</em><i /></span>
+                          <button className={'tree-person tone-' + toCircle.tone} onClick={() => setSelectedId(to.id)} type="button"><span>{to.initials}</span>{to.name}</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
               ))}
-            </div>
-            <div className="cross-network" aria-label="Cross-circle relationship map">
-              <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
-                {crossCircleTies.map((tie, index) => {
-                  const from = crossNodeById.get(tie.from)!;
-                  const to = crossNodeById.get(tie.to)!;
-                  return <line key={tie.from + '-' + tie.to + '-' + index} x1={from.x} y1={from.y} x2={to.x} y2={to.y} />;
-                })}
-              </svg>
-              <div className="cross-network-core"><span>MM</span><strong>Middlemarch</strong></div>
-              {crossNodes.map((node) => {
-                const person = personById.get(node.id)!;
-                const circle = circleById.get(person.circle)!;
-                return (
-                  <button aria-label={'Select ' + person.name} className={'cross-network-node tone-' + circle.tone} key={person.id} onClick={() => setSelectedId(person.id)} style={{ left: node.x + '%', top: node.y + '%' }} type="button">
-                    <span>{person.initials}</span><strong>{person.name}</strong>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="cross-network-key" aria-label="Cross-circle connections">
-              {crossCircleTies.map((tie, index) => {
-                const left = personById.get(tie.from)!;
-                const right = personById.get(tie.to)!;
-                return <button key={tie.from + '-' + tie.to + '-' + index} onClick={() => setSelectedId(left.id)} type="button"><span>{left.name}</span><i /><em>{tie.label}</em><i /><span>{right.name}</span></button>;
-              })}
             </div>
           </section>
         )}
