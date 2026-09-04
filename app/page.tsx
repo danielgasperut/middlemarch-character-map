@@ -606,9 +606,9 @@ export default function Home() {
 
         <div className="map-note" role="note"><Sparkles size={17} aria-hidden="true" /><span><strong>Conservative spoiler guard:</strong> first names are supplied where known, but later actions and revelations remain hidden. Unnamed people stay labeled as the novel labels them.</span></div>
 
+        <div className="map-summary"><span>{visiblePeople.length} people</span><i /><span>{visibleTies.length} named ties</span></div>
         <div className="map-layout">
           <section className="circles" aria-label="Character groups">
-            <div className="map-summary"><span>{visiblePeople.length} people</span><i /><span>{visibleTies.length} named ties</span></div>
             {circles.map((circle) => {
               const members = visiblePeople.filter((person) => person.circle === circle.id);
               if (!members.length) return null;
