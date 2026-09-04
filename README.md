@@ -40,7 +40,7 @@ npm run build
 
 The current self-contained export is here:
 
-[`exports/Middlemarch-Character-Map-current.html`](exports/Middlemarch-Character-Map-current.html)
+[`docs/index.html`](docs/index.html)
 
 Open that file in any modern browser. It contains its own CSS, JavaScript, characters, relationships, chapter-aware descriptions, and Book I–VIII slider index—no server or installation required.
 
@@ -57,8 +57,12 @@ The generator reads the current data and narrative helper functions from `app/pa
 - `app/page.tsx` — character data, relationship data, spoiler rules, and interactive interface
 - `app/globals.css` — visual design and responsive layout
 - `export-standalone.mjs` — generator for the offline HTML version
-- `exports/` — generated standalone deliverables
-- `middlemarch-gutenberg.txt` — Project Gutenberg reference text used while preparing the map
+- `docs/index.html` — generated standalone export and GitHub Pages entry point
+- `middlemarch-gutenberg.txt` — local copy of the Project Gutenberg reference text used while preparing the map
+
+## Source text
+
+The map’s chapter references and relationship notes were checked against [*Middlemarch* on Project Gutenberg, eBook #145](https://www.gutenberg.org/ebooks/145). The repository includes the corresponding local text copy for reproducibility.
 
 ## Spoiler-safety note
 
