@@ -348,7 +348,8 @@ button { font: inherit; }
 .group-relationships summary::-webkit-details-marker { display: none; }
 .group-relationships summary::after { content: '⌄'; color: #8f9ab0; font-size: 1rem; transition: transform .16s ease; }
 .group-relationships[open] summary::after { transform: rotate(180deg); }
-.group-ties { display: grid; gap: .3rem; margin-top: .55rem; }
+.household-tree { display: grid; gap: .55rem; margin-top: .6rem; padding-left: 1.2rem; }
+.household-tree .tree-branch { --tree-line: var(--accent-color); }
 .tie-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

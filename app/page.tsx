@@ -553,16 +553,6 @@ export default function Home() {
   });
   const currentPosition = bookPosition(chapter);
   const selectedPosition = selected ? bookPosition(selected.introduced) : null;
-  const crossCircleTies = visibleTies.filter((tie) => {
-    const left = personById.get(tie.from);
-    const right = personById.get(tie.to);
-    return left && right && left.circle !== right.circle;
-  });
-  const crossTreeGroups = circles.map((circle) => ({
-    circle,
-    ties: crossCircleTies.filter((tie) => personById.get(tie.from)?.circle === circle.id),
-  })).filter((group) => group.ties.length > 0);
-
   return (
     <main className="map-page">
       <div className="page-orb orb-one" />
@@ -625,8 +615,7 @@ export default function Home() {
               const presentation = circlePresentation(circle, chapter);
               const groupTies = visibleTies.filter((tie) => {
                 const left = personById.get(tie.from);
-                const right = personById.get(tie.to);
-                return left?.circle === circle.id && right?.circle === circle.id;
+                return left?.circle === circle.id;
               });
 
               return (
@@ -648,11 +637,13 @@ export default function Home() {
                   {groupTies.length > 0 && (
                     <details className="group-relationships">
                       <summary>{groupTies.length} relationship{groupTies.length === 1 ? '' : 's'} shown so far</summary>
-                      <div className="group-ties" aria-label={presentation.title + ' relationships'}>
+                      <div className="household-tree" aria-label={presentation.title + ' relationships'}>
                         {groupTies.map((tie, index) => (
-                          <button type="button" className="tie-row" key={tie.from + '-' + tie.to + '-' + index} onClick={() => openRelationship(tie)}>
-                            <span>{named(tie.from)}</span><em>{tie.label}</em><span>{named(tie.to)}</span>
-                          </button>
+                          <div className="tree-branch" key={tie.from + '-' + tie.to + '-' + index}>
+                            <button className="tree-person tree-source" onClick={() => openRelationship(tie)} type="button"><span>{named(tie.from).split(' ').map((part) => part[0]).join('').slice(0, 3)}</span>{named(tie.from)}</button>
+                            <span className="tree-link"><i /><em>{tie.label}</em><i /></span>
+                            <button className={'tree-person tone-' + (circleById.get(personById.get(tie.to)?.circle ?? '')?.tone ?? 'violet')} onClick={() => openRelationship(tie)} type="button"><span>{named(tie.to).split(' ').map((part) => part[0]).join('').slice(0, 3)}</span>{named(tie.to)}</button>
+                          </div>
                         ))}
                       </div>
                     </details>
@@ -710,40 +701,6 @@ export default function Home() {
             </aside>
           )}
         </div>
-
-        {crossCircleTies.length > 0 && (
-          <section className="cross-circle-panel" aria-labelledby="cross-circle-title">
-            <div className="cross-circle-heading">
-              <div>
-                <p className="section-kicker">The web between households</p>
-                <h2 id="cross-circle-title">Cross-circle view</h2>
-                <p>These are the bridges joining otherwise separate families and social worlds at {currentPosition.label}. Select any person to open their full relationship map.</p>
-              </div>
-              <span>{crossCircleTies.length} bridges</span>
-            </div>
-            <div className="cross-tree" aria-label="Cross-circle relationship tree">
-              {crossTreeGroups.map(({ circle, ties: groupTies }) => (
-                <section className={'tree-group tone-' + circle.tone} key={circle.id}>
-                  <h3>{circlePresentation(circle, chapter).title}</h3>
-                  <div className="tree-branches">
-                    {groupTies.map((tie, index) => {
-                      const from = personById.get(tie.from)!;
-                      const to = personById.get(tie.to)!;
-                      const toCircle = circleById.get(to.circle)!;
-                      return (
-                        <div className="tree-branch" key={tie.from + '-' + tie.to + '-' + index}>
-                          <button className="tree-person tree-source" onClick={() => setSelectedId(from.id)} type="button"><span>{from.initials}</span>{from.name}</button>
-                          <span className="tree-link"><i /><em>{tie.label}</em><i /></span>
-                          <button className={'tree-person tone-' + toCircle.tone} onClick={() => setSelectedId(to.id)} type="button"><span>{to.initials}</span>{to.name}</button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </section>
-        )}
 
         <p className="scope-note">Scope: named people who appear, are directly discussed, or connect to the principal network by this chapter. Passing historical, mythological, and literary references are not treated as characters.</p>
       </section>
