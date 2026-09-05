@@ -11,6 +11,7 @@
   let selectedId = metadata.defaultPersonId || people[0]?.id;
   let focus = null;
   let openDrawers = new Set();
+  let collapsedCircles = new Set();
 
   const $ = (id) => document.getElementById(id);
   const position = (number) => {
@@ -24,6 +25,7 @@
   };
   const rememberDrawers = () => {
     openDrawers = new Set([...document.querySelectorAll('details.relations[open]')].map((drawer) => drawer.dataset.circle));
+    collapsedCircles = new Set([...document.querySelectorAll('details.household:not([open])')].map((household) => household.dataset.circle));
   };
   const tieIndex = (tie) => ties.indexOf(tie);
   const selectedTie = (index) => Number.isInteger(index) && ties[index] ? ties[index] : null;
@@ -97,11 +99,11 @@
       const members = peopleNow.filter((entry) => entry.circle === circle.id);
       const presentation = circlePresentation(circle, chapter);
       const related = tiesNow.filter((tie) => byId.get(tie.from).circle === circle.id);
-      return `<section class="circle tone-${circle.tone}" style="grid-row:${index + 1}">
-        <div class="circle-head"><div><p>${presentation.eyebrow}</p><h2>${presentation.title}</h2></div><span class="count">${members.length}</span></div>
-        <div class="cards">${members.map(personCard).join('')}</div>
-        ${related.length ? `<details class="relations" data-circle="${circle.id}" ${openDrawers.has(circle.id) ? 'open' : ''}><summary>${related.length} relationship${related.length === 1 ? '' : 's'} shown so far</summary><div class="tree">${related.map(relationshipBranch).join('')}</div></details>` : ''}
-      </section>`;
+      return `<details class="circle household tone-${circle.tone}" data-circle="${circle.id}" style="grid-row:${index + 1}" ${collapsedCircles.has(circle.id) ? '' : 'open'}>
+        <summary class="circle-head"><div><p>${presentation.eyebrow}</p><h2>${presentation.title}</h2></div><span class="count">${members.length}</span></summary>
+        <div class="household-content"><div class="cards">${members.map(personCard).join('')}</div>
+        ${related.length ? `<details class="relations" data-circle="${circle.id}" ${openDrawers.has(circle.id) ? 'open' : ''}><summary>${related.length} relationship${related.length === 1 ? '' : 's'} shown so far</summary><div class="tree">${related.map(relationshipBranch).join('')}</div></details>` : ''}</div>
+      </details>`;
     }).join('');
     const personTies = tiesNow.filter((tie) => tie.from === person.id || tie.to === person.id);
     $('layout').innerHTML = `${sections}${detailPanel(person, personTies, row)}`;
