@@ -110,6 +110,9 @@ button { font: inherit; }
 .chapter-medallion strong { display: block; margin-top: .15rem; font-size: 1.05rem; }
 
 .reading-panel {
+  position: sticky;
+  top: .5rem;
+  z-index: 30;
   display: grid;
   grid-template-columns: minmax(12rem, .9fr) minmax(13rem, 1.35fr) auto;
   align-items: center;
@@ -117,6 +120,7 @@ button { font: inherit; }
   padding: clamp(1.2rem, 3vw, 2rem);
   border: 1px solid var(--line);
   border-top: 0;
+  border-radius: 0 0 1rem 1rem;
   background: #fff;
   box-shadow: 0 12px 30px rgba(43, 58, 100, .07);
 }
