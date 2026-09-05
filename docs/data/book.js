@@ -1,31 +1,17 @@
-'use client';
-
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  ChevronRight,
-  Link2,
-  Sparkles,
-} from 'lucide-react';
-
-type Person = {
-  id: string;
-  name: string;
-  circle: string;
-  introduced: number;
-  initials: string;
-  role: string;
-  detail: string;
-};
-
-type Tie = {
-  from: string;
-  to: string;
-  introduced: number;
-  label: string;
-  through?: number;
+/*
+ * BOOK DATA — edit this file to adapt the map to another book.
+ * The renderer in ../assets/map.js reads window.BOOK_DATA.
+ */
+(function () {
+const metadata = {
+  title: 'Middlemarch',
+  eyebrow: 'A reader’s companion',
+  subtitle: 'Character map, one chapter at a time.',
+  readingPrompt: 'Move to the chapter you’ve finished. Later people and connections stay out of sight.',
+  defaultPersonId: 'dorothea',
+  principalIds: ['dorothea','celia','brooke','casaubon','chettam','will','vincy','mrs-vincy','rosamond','fred','harriet','featherstone','mary','caleb','susan','farebrother','lydgate','bulstrode'],
+  source: { title: 'Middlemarch, Project Gutenberg eBook #145', url: 'https://www.gutenberg.org/ebooks/145', localText: '../../middlemarch-gutenberg.txt' },
+  theme: { accent: '#6961b5', accentPale: '#f0effa' }
 };
 
 const books = [
@@ -37,21 +23,7 @@ const books = [
   { roman: 'VI', start: 54, end: 62 },
   { roman: 'VII', start: 63, end: 71 },
   { roman: 'VIII', start: 72, end: 86 },
-] as const;
-
-function bookPosition(globalChapter: number) {
-  const book =
-    books.find(
-      (candidate) =>
-        globalChapter >= candidate.start && globalChapter <= candidate.end,
-    ) ?? books[books.length - 1];
-  return {
-    book,
-    chapter: globalChapter,
-    label: 'Book ' + book.roman + ' · Chapter ' + globalChapter,
-  };
-}
-
+];
 const circles = [
   { id: 'brookes', title: 'The Brookes, Lowick & Freshitt', eyebrow: 'Country families & households', tone: 'violet' },
   { id: 'vincys', title: 'The Vincy household', eyebrow: 'Family, school & home', tone: 'rose' },
@@ -61,9 +33,8 @@ const circles = [
   { id: 'medicine', title: 'Medicine & the hospital', eyebrow: 'Doctors, patients & professional rivals', tone: 'blue' },
   { id: 'town', title: 'Middlemarch public life', eyebrow: 'Clergy, business & society', tone: 'teal' },
   { id: 'rome', title: 'The Rome circle', eyebrow: 'Art & acquaintance abroad', tone: 'plum' },
-] as const;
-
-const people: Person[] = [
+];
+const people = [
   { id: 'dorothea', name: 'Dorothea Brooke', circle: 'brookes', introduced: 1, initials: 'DB', role: 'Later Mrs Edward Casaubon', detail: 'Arthur Brooke’s earnest elder niece and Celia’s sister. By Chapter 22 she is married to Edward Casaubon.' },
   { id: 'celia', name: 'Celia Brooke', circle: 'brookes', introduced: 1, initials: 'CB', role: 'Dorothea’s younger sister', detail: 'Practical and observant, Celia often sees the social reality that Dorothea overlooks.' },
   { id: 'brooke', name: 'Arthur Brooke', circle: 'brookes', introduced: 1, initials: 'AB', role: 'Usually called Mr Brooke', detail: 'Bachelor uncle and guardian of Dorothea and Celia; owner of Tipton Grange.' },
@@ -153,8 +124,7 @@ const people: Person[] = [
   { id: 'mrs-hackbutt', name: 'Mrs Hackbutt', circle: 'town', introduced: 74, initials: 'MH', role: 'First name not given', detail: 'Mr Hackbutt’s wife and a node in the town’s rapid circulation of news.' },
   { id: 'mrs-sprague', name: 'Mrs Sprague', circle: 'town', introduced: 74, initials: 'MS', role: 'First name not given', detail: 'Dr Sprague’s wife and another participant in Middlemarch’s information network.' },
 ];
-
-const ties: Tie[] = [
+const ties = [
   { from: 'dorothea', to: 'celia', introduced: 1, label: 'sisters' },
   { from: 'brooke', to: 'dorothea', introduced: 1, label: 'uncle & guardian' },
   { from: 'brooke', to: 'celia', introduced: 1, label: 'uncle & guardian' },
@@ -310,11 +280,7 @@ const ties: Tie[] = [
   { from: 'mrs-sprague', to: 'sprague', introduced: 74, label: 'married' },
   { from: 'mrs-hackbutt', to: 'mrs-sprague', introduced: 74, label: 'exchange town news' },
 ];
-
-const circleById = new Map(circles.map((circle) => [circle.id, circle]));
-const personById = new Map(people.map((person) => [person.id, person]));
-
-function circlePresentation(circle: (typeof circles)[number], chapter: number) {
+function circlePresentation(circle, chapter) {
   if (circle.id === 'brookes') {
     if (chapter < 5) return { title: 'The Brooke household', eyebrow: 'Tipton Grange' };
     if (chapter < 20) return { title: 'The Brookes & Lowick', eyebrow: 'Family, courtship & parish life' };
@@ -325,9 +291,9 @@ function circlePresentation(circle: (typeof circles)[number], chapter: number) {
   return { title: circle.title, eyebrow: circle.eyebrow };
 }
 
-function relationshipStatement(left: Person, right: Person, label: string) {
+function relationshipStatement(left, right, label) {
   const names = left.name + ' and ' + right.name;
-  const directed: Record<string, string> = {
+  const directed = {
     'uncle & guardian': `${left.name} is ${right.name}’s uncle and guardian.`,
     'mother & son': `${left.name} is ${right.name}’s mother.`,
     'mother & daughter': `${left.name} is ${right.name}’s mother.`,
@@ -368,7 +334,7 @@ function relationshipStatement(left: Person, right: Person, label: string) {
   };
   if (directed[label]) return directed[label];
 
-  const shared: Record<string, string> = {
+  const shared = {
     'sisters': `${names} are sisters.`,
     'siblings': `${names} are siblings.`,
     'brothers': `${names} are brothers.`,
@@ -415,7 +381,7 @@ function relationshipStatement(left: Person, right: Person, label: string) {
   return shared[label] ?? `${names} have an established place in one another’s lives.`;
 }
 
-function profileAtChapter(person: Person, chapter: number) {
+function profileAtChapter(person, chapter) {
   const detail = person.detail
     .replace(/\s*By Chapter \d+[^.]*\./gi, '')
     .replace(/;[^.]*by Chapter \d+[^.]*\./gi, '')
@@ -901,7 +867,7 @@ const relationshipTimelines = {
   ],
 };
 
-function characterRecap(person: Person, chapter: number) {
+function characterRecap(person, chapter) {
   if (person.id === 'mrs-farebrother') return 'Mrs Farebrother is Camden Farebrother’s lively, sharp-eyed mother and part of the small household he supports. Her domestic world gives context to the financial responsibilities behind her son’s work and his need for a better living.';
   if (person.id === 'winifred') return 'Winifred Farebrother is Camden’s elder sister, an unmarried member of the household he helps maintain. Her quiet presence belongs to the family obligations that make Farebrother’s choices of work, money, and marriage more complicated than they first appear.';
   if (person.id === 'miss-noble') return 'Miss Noble is Mrs Farebrother’s gentle, tiny sister and Camden’s aunt. Cared for by Winifred, she is part of the affectionate but economically constrained household that Camden Farebrother sustains.';
@@ -1302,7 +1268,7 @@ function characterRecap(person: Person, chapter: number) {
   return profileAtChapter(person, chapter).detail;
 }
 
-function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: number) {
+function relationshipRecap(left, right, tie, chapter) {
   const key = [left.id, right.id].sort().join('|');
   const timed = relationshipTimelines[key]?.find((stage) => chapter >= stage.from && (stage.to === undefined || chapter <= stage.to));
   if (timed) return timed.text;
@@ -1379,205 +1345,6 @@ function relationshipRecap(left: Person, right: Person, tie: Tie, chapter: numbe
   return `${relationshipStatement(left, right, tie.label)} At this point, ${left.name} is ${leftProfile.role.toLowerCase()}, while ${right.name} is ${rightProfile.role.toLowerCase()}. Their connection remains part of the immediate world the novel has established around them.`;
 }
 
-export default function Home() {
-  const [chapter, setChapter] = useState(1);
-  const [selectedId, setSelectedId] = useState('dorothea');
-  const [relationshipFocus, setRelationshipFocus] = useState<Tie | null>(null);
+window.BOOK_DATA = { metadata, books, circles, people, ties, circlePresentation, relationshipStatement, profileAtChapter, relationshipTimelines, characterRecap, relationshipRecap };
+})();
 
-  const visiblePeople = useMemo(() => people.filter((person) => person.introduced <= chapter), [chapter]);
-  const visibleIds = useMemo(() => new Set(visiblePeople.map((person) => person.id)), [visiblePeople]);
-  const visibleTies = useMemo(
-    () => ties.filter((tie) => tie.introduced <= chapter && (tie.through === undefined || chapter <= tie.through) && visibleIds.has(tie.from) && visibleIds.has(tie.to)),
-    [chapter, visibleIds],
-  );
-  const selected = personById.get(selectedId) ?? visiblePeople[0];
-  const selectedProfile = selected ? profileAtChapter(selected, chapter) : null;
-
-  useEffect(() => {
-    if (!visibleIds.has(selectedId)) setSelectedId(visiblePeople[0]?.id ?? 'dorothea');
-  }, [selectedId, visibleIds, visiblePeople]);
-
-  useEffect(() => {
-    setRelationshipFocus((focus) => {
-      if (!focus) return null;
-      const currentTie = visibleTies.find((tie) =>
-        (tie.from === focus.from && tie.to === focus.to) || (tie.from === focus.to && tie.to === focus.from),
-      );
-      if (!currentTie) return null;
-      return currentTie.from === selectedId || currentTie.to === selectedId ? currentTie : null;
-    });
-  }, [selectedId, visibleTies]);
-
-  const named = (id: string) => personById.get(id)?.name ?? '';
-  const openRelationship = (tie: Tie) => {
-    setSelectedId(tie.from);
-    setRelationshipFocus(tie);
-  };
-  const selectedTies = visibleTies.filter((tie) => tie.from === selected?.id || tie.to === selected?.id);
-  const focusedTie = relationshipFocus && selectedTies.includes(relationshipFocus) ? relationshipFocus : null;
-  const focusedPerson = focusedTie ? personById.get(focusedTie.from === selected?.id ? focusedTie.to : focusedTie.from) : null;
-  const relationshipNodes = selectedTies.map((tie, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / selectedTies.length;
-    return { tie, x: 50 + Math.cos(angle) * 39, y: 50 + Math.sin(angle) * 36 };
-  });
-  const currentPosition = bookPosition(chapter);
-  const selectedPosition = selected ? bookPosition(selected.introduced) : null;
-  const visibleCircles = circles.filter((circle) => visiblePeople.some((person) => person.circle === circle.id));
-  const selectedCircleRow = Math.max(1, visibleCircles.findIndex((circle) => circle.id === selected?.circle) + 1);
-  return (
-    <main className="map-page">
-      <div className="page-orb orb-one" />
-      <div className="page-orb orb-two" />
-      <section className="map-shell" aria-label="Middlemarch spoiler-safe character map">
-        <header className="map-header">
-          <div className="eyebrow"><BookOpen size={16} aria-hidden="true" /> A reader’s companion</div>
-          <div className="header-copy">
-            <div><h1>Middlemarch</h1><p>Character map, one chapter at a time.</p></div>
-            <div className="chapter-medallion" aria-label={'Showing ' + currentPosition.label}>
-              <span>Book {currentPosition.book.roman}</span>
-              <strong>Chapter {chapter}</strong>
-            </div>
-          </div>
-        </header>
-
-        <section className="reading-panel" aria-labelledby="reading-position-title">
-          <div className="reading-copy">
-            <p className="section-kicker" id="reading-position-title">Reading position</p>
-            <p>Move to the chapter you’ve finished. Later people and connections stay out of sight.</p>
-          </div>
-          <div className="slider-wrap">
-            <input
-              aria-label="Chapter completed"
-              className="chapter-slider"
-              min={1}
-              max={86}
-              step={1}
-              onChange={(event) => setChapter(Number(event.target.value))}
-              type="range"
-              value={chapter}
-            />
-            <div className="slider-reading-position">
-              <strong>{currentPosition.label}</strong>
-              <span>Continuous chapter numbering · {chapter} of 86</span>
-            </div>
-            <div className="book-index" aria-hidden="true">
-              {books.map((book) => (
-                <span className={book.roman === currentPosition.book.roman ? 'is-current' : ''} key={book.roman}>
-                  <b>Book {book.roman}</b>
-                  <small>Ch. {book.start}–{book.end}</small>
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="chapter-actions">
-            <button type="button" onClick={() => setChapter((value) => Math.max(1, value - 1))} disabled={chapter === 1}><ArrowLeft size={17} aria-hidden="true" /> Earlier</button>
-            <button type="button" onClick={() => setChapter((value) => Math.min(86, value + 1))} disabled={chapter === 86}>Next <ArrowRight size={17} aria-hidden="true" /></button>
-          </div>
-        </section>
-
-        <div className="map-note" role="note"><Sparkles size={17} aria-hidden="true" /><span><strong>Conservative spoiler guard:</strong> first names are supplied where known, but later actions and revelations remain hidden. Unnamed people stay labeled as the novel labels them.</span></div>
-
-        <div className="map-summary"><span>{visiblePeople.length} people</span><i /><span>{visibleTies.length} named ties</span></div>
-        <div className="map-layout">
-            {visibleCircles.map((circle, circleIndex) => {
-              const members = visiblePeople.filter((person) => person.circle === circle.id);
-              const presentation = circlePresentation(circle, chapter);
-              const groupTies = visibleTies.filter((tie) => {
-                const left = personById.get(tie.from);
-                return left?.circle === circle.id;
-              });
-
-              return (
-                <section className={'circle-section tone-' + circle.tone} key={circle.id} aria-labelledby={circle.id + '-title'} style={{ gridRow: circleIndex + 1 }}>
-                  <div className="circle-heading">
-                    <div><p>{presentation.eyebrow}</p><h2 id={circle.id + '-title'}>{presentation.title}</h2></div>
-                    <span>{members.length}</span>
-                  </div>
-                  <div className="people-grid">
-                    {members.map((person) => (
-                      <button className={['person-card', selected?.id === person.id ? 'is-selected' : ''].filter(Boolean).join(' ')} key={person.id} type="button" onClick={() => setSelectedId(person.id)} aria-pressed={selected?.id === person.id}>
-                        <span className="person-initials">{person.initials}</span>
-                        <span className="person-name">{person.name}</span>
-                        <span className="person-role">{profileAtChapter(person, chapter).role}</span>
-                        <ChevronRight className="card-chevron" size={18} aria-hidden="true" />
-                      </button>
-                    ))}
-                  </div>
-                  {groupTies.length > 0 && (
-                    <details className="group-relationships">
-                      <summary>{groupTies.length} relationship{groupTies.length === 1 ? '' : 's'} shown so far</summary>
-                      <div className="household-tree" aria-label={presentation.title + ' relationships'}>
-                        {groupTies.map((tie, index) => (
-                          <div className="tree-branch" key={tie.from + '-' + tie.to + '-' + index}>
-                            <button className="tree-person tree-source" onClick={() => openRelationship(tie)} type="button"><span>{named(tie.from).split(' ').map((part) => part[0]).join('').slice(0, 3)}</span>{named(tie.from)}</button>
-                            <span className="tree-link"><i /><em>{tie.label}</em><i /></span>
-                            <button className={'tree-person tone-' + (circleById.get(personById.get(tie.to)?.circle ?? '')?.tone ?? 'violet')} onClick={() => openRelationship(tie)} type="button"><span>{named(tie.to).split(' ').map((part) => part[0]).join('').slice(0, 3)}</span>{named(tie.to)}</button>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  )}
-                </section>
-              );
-            })}
-
-          {selected && (
-            <aside className="detail-panel" aria-live="polite" style={{ gridRow: selectedCircleRow }}>
-              <div className="detail-topline"><span>Selected person</span><span>First shown: Book {selectedPosition?.book.roman} · Ch. {selected.introduced}</span></div>
-              <div className="detail-identity">
-                <div className="detail-initials">{selected.initials}</div>
-                <div><h2>{selected.name}</h2><p>{selectedProfile?.role}</p></div>
-              </div>
-              <p className="detail-copy">{selectedProfile?.detail}</p>
-              <div className="detail-divider" />
-              <section className="relationship-section" aria-label={'Relationship map for ' + selected.name}>
-                <p className="relationship-title"><Link2 size={16} aria-hidden="true" /> Relationship map</p>
-                {selectedTies.length ? (
-                  <div className="relationship-network">
-                    <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      {relationshipNodes.map(({ tie, x, y }, index) => <line key={tie.from + '-' + tie.to + '-' + index} x1="50" y1="50" x2={x} y2={y} />)}
-                    </svg>
-                    <div className="relationship-center">
-                      <span>{selected.initials}</span>
-                      <strong>{selected.name}</strong>
-                    </div>
-                    {relationshipNodes.map(({ tie, x, y }, index) => {
-                        const otherId = tie.from === selected.id ? tie.to : tie.from;
-                        const person = personById.get(otherId);
-                        if (!person) return null;
-                        return (
-                          <button aria-label={'Show the ' + tie.label + ' relationship between ' + selected.name + ' and ' + person.name} className={'relationship-node' + (focusedTie === tie ? ' is-active' : '')} key={tie.from + '-' + tie.to + '-' + index} onClick={() => setRelationshipFocus(tie)} style={{ left: x + '%', top: y + '%' }} type="button">
-                            <span className="relationship-node-avatar">{person.initials}</span>
-                            <strong>{person.name}</strong>
-                          </button>
-                        );
-                      })}
-                  </div>
-                ) : (
-                  <p className="relationship-empty">No named tie is visible at this reading position yet.</p>
-                )}
-              </section>
-              <div className="detail-connections">
-                {focusedTie && focusedPerson ? (
-                  <>
-                    <p>Relationship at this chapter</p>
-                    <h3>{selected.name} &amp; {focusedPerson.name}</h3>
-                    <span className="relationship-summary">{relationshipRecap(selected, focusedPerson, focusedTie, chapter)}</span>
-                  </>
-                ) : (
-                  <>
-                    <p>This person at this chapter</p>
-                    <h3>{selected.name}</h3>
-                    <span className="relationship-summary">{characterRecap(selected, chapter)}</span>
-                  </>
-                )}
-              </div>
-            </aside>
-          )}
-        </div>
-
-        <p className="scope-note">Scope: named people who appear, are directly discussed, or connect to the principal network by this chapter. Passing historical, mythological, and literary references are not treated as characters.</p>
-      </section>
-    </main>
-  );
-}

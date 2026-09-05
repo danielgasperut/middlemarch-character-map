@@ -1,69 +1,47 @@
 # Middlemarch Character Map
 
-A spoiler-safe, chapter-by-chapter relationship map for George Eliot’s *Middlemarch*.
+A spoiler-safe, chapter-by-chapter relationship map for George Eliot’s *Middlemarch*. Choose the chapter you have finished: the map shows only the people, relationships, household names, and descriptions available at that point.
 
-Choose the chapter you have just finished and the map shows only the characters, relationships, household names, and character descriptions available at that point in the novel. The map starts at Chapter 1 and uses the novel’s continuous chapter numbering, with Book I–VIII shown alongside the slider.
+[Open the published map](https://danielgasperut.github.io/middlemarch-character-map/)
 
-## What it includes
+## Use and edit it
 
-- Chapter-aware spoiler guard across all 86 chapters
-- Grouped households and social circles, with expandable relationship drawers
-- A selected-person panel with a connected relationship map
-- Chapter-specific relationship summaries written in natural language
-- Visually quieter tiles for supporting characters
-- A responsive layout for desktop and mobile reading
+Open [`docs/index.html`](docs/index.html) directly in a modern browser, or use the GitHub Pages link above. No installation, build, or local web server is needed.
 
-## Use it online
+To change the book’s content, edit [`docs/data/book.js`](docs/data/book.js). To adjust the appearance or layout, edit [`docs/assets/styles.css`](docs/assets/styles.css). The map behavior lives in [`docs/assets/map.js`](docs/assets/map.js) and should normally be reused unchanged for another book.
 
-The current private site is available at:
+## Architecture
 
-https://middlemarch-character-map-8.daniel-gasperut.chatgpt.site
-
-## Run the interactive site locally
-
-This project requires Node.js 22.13 or later.
-
-```bash
-npm install
-npm run dev
+```text
+docs/index.html
+       │ loads
+       ├── data/book.js       book-specific content and spoiler chronology
+       ├── assets/map.js      slider, filtering, map, selections, and rendering
+       └── assets/styles.css  shared visual design and responsive layout
 ```
 
-Open the local address printed in the terminal.
+`book.js` contains the complete editorial model: book/chapter ranges, social circles, people, ties, role/detail stages, person summaries, relationship timelines, source information, and the default selected person. `styles.css` contains colors, typography, spacing, layout, and mobile behavior. This split keeps editorial updates separate from design changes.
 
-To create a production build:
+The browser loads `book.js` with a normal script tag rather than fetching JSON. That is intentional: the map works when opened from Finder as well as when hosted on GitHub Pages.
 
-```bash
-npm run build
-```
+## Start a new book map
 
-## Standalone offline version
+1. Create a new repository from this one, or copy its static structure.
+2. Replace `docs/data/book.js` with a copy of [`docs/data/book.template.js`](docs/data/book.template.js).
+3. Set the title, source, chapter ranges, default person, and theme in `metadata`.
+4. Add social circles, then people, then named ties and chapter-stage summaries.
+5. Follow [`CHARACTER-MAP-AUTHORING.md`](CHARACTER-MAP-AUTHORING.md) while writing profiles and relationship timelines.
+6. Open `docs/index.html` locally and check chapter introductions and important turns in each relationship.
+7. In the GitHub repository’s Pages settings, publish from the `main` branch’s `/docs` folder.
 
-The current self-contained export is here:
+For another book, `book.js` is the content you replace; `map.js`, `styles.css`, and `index.html` are the reusable map kit.
 
-[`docs/index.html`](docs/index.html)
+## Spoiler-safety review
 
-Open that file in any modern browser. It contains its own CSS, JavaScript, characters, relationships, chapter-aware descriptions, and Book I–VIII slider index—no server or installation required.
+The map is deliberately conservative. At every introduction or change, check the preceding chapter and the introduction chapter: no person, relationship, title, role, or descriptive fact should appear before the reader could know it. When the text or edition makes timing uncertain, favor the later chapter.
 
-To regenerate the offline version after editing the site’s data or copy, run:
-
-```bash
-node export-standalone.mjs
-```
-
-The generator reads the current data and narrative helper functions from `app/page.tsx` and writes the updated HTML export.
-
-## Project structure
-
-- `app/page.tsx` — character data, relationship data, spoiler rules, and interactive interface
-- `app/globals.css` — visual design and responsive layout
-- `export-standalone.mjs` — generator for the offline HTML version
-- `docs/index.html` — generated standalone export and GitHub Pages entry point
-- `middlemarch-gutenberg.txt` — local copy of the Project Gutenberg reference text used while preparing the map
+Relationship notes should explain what is meaningful between the two people *at that point in the story*, using natural language and concrete scenes rather than generic map terminology. The full authoring rules and a data checklist are in [`CHARACTER-MAP-AUTHORING.md`](CHARACTER-MAP-AUTHORING.md).
 
 ## Source text
 
-The map’s chapter references and relationship notes were checked against [*Middlemarch* on Project Gutenberg, eBook #145](https://www.gutenberg.org/ebooks/145). The repository includes the corresponding local text copy for reproducibility.
-
-## Spoiler-safety note
-
-The map is deliberately conservative, but it is still a reader-made guide rather than a scholarly edition. If you spot a character, title, relationship, or description that appears too early, please treat it as a bug and adjust the chapter slider backward while it is corrected.
+The chapter references and relationship notes were checked against [*Middlemarch* on Project Gutenberg, eBook #145](https://www.gutenberg.org/ebooks/145). The repository includes [`middlemarch-gutenberg.txt`](middlemarch-gutenberg.txt) as a local checking copy.

@@ -11,11 +11,6 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/.vinext/
-/out/
-
 # misc
 .DS_Store
 *.pem
@@ -29,11 +24,12 @@ yarn-error.log*
 # local environment
 .env*
 
-# deployment and generated files
-.openai/hosting.json
-.vercel
-next-env.d.ts
-/dist/
+# local artifacts
+/.next/
+/.vinext/
 /.wrangler/
+/dist/
+/next-env.d.ts
+/.openai/
 /outputs/
 /work/
